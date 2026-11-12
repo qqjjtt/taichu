@@ -1,0 +1,4 @@
+- ui: shell.html + style.css 写完（02:38），接下来 ui.js
+- ui: ui.js 写完，桌面流程走通（片头/幕名卡/字幕/时间轴/解剖/关于/输入/空闲），零错误；shots/ui/uiflow.py 是流程脚本
+- ui: 六幕真片 retina 流程走通、零错误；修了解剖实时表对齐、时间轴标签与刻度相叠、片头构图右移
+- ui: 自检通过：build 通过、dist 带界面正常、零控制台错误、组字回车不提交、拖动穿透界面；testcard+UI gpuAvg 4.2ms。已完成。

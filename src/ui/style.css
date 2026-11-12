@@ -1,0 +1,355 @@
+/* 太初 TAICHU — 界面层。
+   布局概念："古籍的竖排 + 天文仪器的刻度"：标题与幕名竖排如线装书的书名签，偏居画面一侧，正中永远留给画面；
+   其余一切是贴边的发丝线与小号铭牌字，像铜版上的刻度。颜色只有一种纸白的不同透明度，外加每一幕取自画面的 --act。 */
+:root {
+  color-scheme: dark;
+  --void: #000;
+  --ink: #eee8da;
+  --ink-dim: rgba(238, 232, 218, 0.66);
+  --ink-faint: rgba(238, 232, 218, 0.44);
+  --rule: rgba(238, 232, 218, 0.24);
+  --rule-faint: rgba(238, 232, 218, 0.12);
+  --act: #ffb46b;
+  --warn: #e8664a;
+  --veil: rgba(0, 0, 0, 0.58);
+
+  --f-han: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+  --f-latin: "Didot", "Bodoni 72", "Baskerville", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-math: "STIX Two Text", "STIXGeneral", "Cambria Math", "Times New Roman", serif;
+
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px;
+  --t-xs: 10px; --t-s: 12px; --t-m: 14px; --t-l: 17px; --t-xl: 26px;
+  --hair: 1px;
+  --edge-l: max(16px, env(safe-area-inset-left, 0px));
+  --edge-r: max(16px, env(safe-area-inset-right, 0px));
+  --edge-t: max(14px, env(safe-area-inset-top, 0px));
+  --edge-b: env(safe-area-inset-bottom, 0px);
+  --fade: 0.6s;
+  --ease: cubic-bezier(0.3, 0, 0.2, 1);
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--void);
+  color: var(--ink);
+  overflow: hidden;
+  font-family: var(--f-han);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+#taichu-canvas {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  display: block; touch-action: none; background: var(--void);
+}
+body.tc-idle, body.tc-idle #taichu-canvas { cursor: none; }
+
+#taichu-ui {
+  position: fixed; inset: 0; pointer-events: none; z-index: 1;
+  font-family: var(--f-han); color: var(--ink);
+}
+#taichu-ui p, #taichu-ui h1, #taichu-ui h2, #taichu-ui h3, #taichu-ui dl, #taichu-ui dd, #taichu-ui ul { margin: 0; padding: 0; }
+#taichu-ui button, #taichu-ui input { pointer-events: auto; font: inherit; color: inherit; }
+#taichu-ui button {
+  background: none; border: 0; border-radius: 0; padding: 0; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#taichu-ui button:focus-visible, #taichu-ui input:focus-visible, #taichu-ui [tabindex]:focus-visible {
+  outline: var(--hair) solid var(--act); outline-offset: 3px;
+}
+#taichu-ui [tabindex="-1"]:focus { outline: none; }
+
+/* 过渡态：静止时只有两种——确定可见（.on）或确定隐藏 */
+.fade { opacity: 0; visibility: hidden; transition: opacity var(--fade) var(--ease), visibility 0s linear var(--fade); }
+.fade.on { opacity: 1; visibility: visible; transition: opacity var(--fade) var(--ease), visibility 0s; }
+
+.plaque {
+  font-family: var(--f-latin); font-size: var(--t-xs); font-weight: 400;
+  letter-spacing: 0.32em; text-transform: uppercase; color: var(--ink-faint);
+}
+
+/* ── 片头 ── */
+#t-start {
+  position: absolute; inset: 0; display: flex; justify-content: flex-end; align-items: center;
+  padding: var(--edge-t) max(6.5vw, var(--edge-r)) var(--s-7) var(--edge-l);
+  transition-duration: 1.4s;
+}
+.start-set { display: flex; flex-direction: row-reverse; align-items: flex-start; gap: var(--s-5); }
+.start-set > * { writing-mode: vertical-rl; }
+.start-set, #t-card, #t-hint, #t-mark { text-shadow: 0 0 3px rgba(0, 0, 0, 0.85), 0 0 12px rgba(0, 0, 0, 0.5); }
+.start-title {
+  font-size: clamp(88px, min(22vh, 30vw), 220px); font-weight: 400; line-height: 1;
+  letter-spacing: 0.06em; color: var(--ink);
+}
+.start-latin {
+  font-family: var(--f-latin); font-size: var(--t-s); letter-spacing: 0.36em; color: var(--ink-dim);
+  margin-top: 0.4em;
+}
+.start-rule { align-self: stretch; width: var(--hair); background: var(--rule); margin: 0 var(--s-3); }
+.start-lede {
+  font-size: var(--t-l); line-height: 2.1; letter-spacing: 0.14em; color: var(--ink-dim);
+  max-height: 17.5em; margin-top: 0.3em;
+}
+.start-lede p + p { margin-right: 0.2em; }
+.start-go { display: flex; gap: var(--s-5); align-items: center; margin-top: 0.3em; margin-right: var(--s-3); }
+#taichu-ui #t-begin {
+  text-orientation: upright; font-size: var(--t-l); letter-spacing: 0.5em;
+  padding: 0.95em 0.62em 0.45em; border: var(--hair) solid var(--act); color: var(--act);
+  transition: background-color 0.3s, color 0.3s, opacity 0.3s;
+}
+#taichu-ui #t-begin:hover:not(:disabled) { background: var(--act); color: var(--void); }
+#taichu-ui #t-begin:disabled { border-color: var(--rule); color: var(--ink-faint); cursor: default; letter-spacing: 0.2em; }
+.start-tip { font-size: var(--t-s); letter-spacing: 0.3em; color: var(--ink-faint); }
+
+/* ── 字标与控制（"chrome"：空闲时淡出的那一层） ── */
+.chrome { transition: opacity 0.9s var(--ease), visibility 0s; }
+#taichu-ui.is-idle .chrome:not(.keep), #taichu-ui.is-intro .chrome {
+  opacity: 0; visibility: hidden; transition: opacity 0.9s var(--ease), visibility 0s linear 0.9s;
+}
+#t-mark {
+  position: absolute; top: var(--edge-t); left: var(--edge-l);
+  display: flex; align-items: baseline; gap: var(--s-3); padding-top: 10px;
+  font-size: var(--t-m); letter-spacing: 0.3em; color: var(--ink-dim);
+}
+.mark-name { color: var(--ink); }
+.mark-act { font-size: var(--t-s); color: var(--ink-faint); padding-left: var(--s-3); border-left: var(--hair) solid var(--rule); }
+.mark-paused { font-size: var(--t-s); color: var(--act); }
+
+#t-controls {
+  position: absolute; top: var(--edge-t); right: var(--edge-r); display: flex;
+}
+#t-controls button {
+  position: relative; min-height: 40px; padding: 0 var(--s-3);
+  font-size: var(--t-m); letter-spacing: 0.24em; text-indent: 0.24em; color: var(--ink-dim);
+  transition: color 0.25s;
+}
+#t-controls button + button::before {
+  content: ""; position: absolute; left: 0; top: 13px; bottom: 13px; width: var(--hair); background: var(--rule);
+}
+#t-controls button::after {
+  content: ""; position: absolute; left: var(--s-3); right: var(--s-3); bottom: 7px; height: var(--hair);
+  background: var(--act); opacity: 0; transition: opacity 0.25s;
+}
+#t-controls button:hover { color: var(--ink); }
+#t-controls button[aria-pressed="true"] { color: var(--ink); }
+#t-controls button[aria-pressed="true"]::after { opacity: 1; }
+
+/* ── 幕名卡：竖排书名签，偏左，不挡正中 ── */
+#t-card {
+  position: absolute; top: 15vh; left: max(9vw, var(--edge-l));
+  display: flex; flex-direction: row-reverse; align-items: flex-start; gap: var(--s-4);
+  transition-duration: 1.2s;
+}
+#t-card.on { transition-duration: var(--fade); }
+#t-card > * { writing-mode: vertical-rl; }
+.card-rule { width: var(--hair); height: 72px; background: var(--act); margin-top: 0.3em; }
+.card-num { font-size: var(--t-m); letter-spacing: 0.4em; color: var(--ink-dim); margin-top: 0.2em; }
+.card-title {
+  font-size: clamp(56px, 12vh, 124px); font-weight: 400; line-height: 1; letter-spacing: 0.1em; color: var(--ink);
+}
+.card-latin { font-family: var(--f-latin); font-size: var(--t-s); letter-spacing: 0.42em; color: var(--act); margin-top: 0.3em; }
+.card-epoch { font-size: var(--t-m); letter-spacing: 0.3em; color: var(--ink-dim); margin-top: 0.3em; text-orientation: upright; }
+.card-epoch .num { text-combine-upright: all; }
+
+/* ── 字幕 ── */
+#t-caption {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(11% + var(--edge-b));
+  width: max-content; max-width: min(30em, calc(100% - 2 * var(--edge-l)));
+  font-size: clamp(18px, 2.4vh + 6px, 28px); line-height: 1.65; letter-spacing: 0.08em;
+  text-align: center; text-wrap: balance; color: var(--ink);
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.9), 0 0 4px rgba(0, 0, 0, 0.7), 0 0 14px rgba(0, 0, 0, 0.55);
+}
+
+/* ── 输入框：一条发丝线 ── */
+#t-input-wrap {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: calc(11% + var(--edge-b) + 4.6em);
+  width: min(22em, calc(100% - 2 * var(--edge-l)));
+}
+#t-input {
+  display: block; width: 100%; box-sizing: border-box;
+  background: transparent; border: 0; border-bottom: var(--hair) solid var(--rule); border-radius: 0;
+  padding: 0.4em 0.2em; font-size: max(16px, var(--t-l)); letter-spacing: 0.12em; text-align: center;
+  color: var(--ink); caret-color: var(--act); transition: border-color 0.3s;
+  font-variant-numeric: tabular-nums;
+}
+#t-input::placeholder { color: var(--ink-faint); }
+#taichu-ui #t-input:focus, #taichu-ui #t-input:focus-visible { outline: none; border-bottom-color: var(--act); }
+
+/* ── 操作提示 ── */
+/* 宽度限制在字幕最宽时的左缘之外（字幕最宽 30em，字号 2.4vh + 6px），两者永不相叠 */
+#t-hint {
+  position: absolute; left: var(--edge-l); bottom: calc(var(--edge-b) + 84px);
+  max-width: max(124px, calc(50vw - 36vh - 130px));
+  font-size: var(--t-s); line-height: 2; letter-spacing: 0.22em; color: var(--ink-faint);
+}
+#t-hint .it { white-space: nowrap; }
+#t-hint .sep { margin: 0 0.5em; color: var(--rule); }
+@media (max-width: 899px) {
+  #t-hint { bottom: auto; top: calc(var(--edge-t) + 44px); max-width: calc(100% - 2 * var(--edge-l)); }
+}
+#t-hint.fade { transition-duration: 1.2s; }
+#taichu-ui.is-idle #t-hint { opacity: 0; }
+
+/* ── 时间轴：按真实距今时间线性排布的刻度 ── */
+#t-timeline {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 0 max(36px, calc(env(safe-area-inset-right, 0px) + 20px)) calc(var(--edge-b) + 8px) max(36px, calc(env(safe-area-inset-left, 0px) + 20px));
+}
+.tl-track { position: relative; height: 66px; }
+.tl-rail { position: absolute; left: 0; right: 0; top: 40px; height: var(--hair); background: var(--rule); }
+.tl-progress {
+  position: absolute; top: 40px; height: var(--hair); left: 0; width: 0; background: var(--act);
+  transition: width 0.12s linear;
+}
+.tl-end {
+  position: absolute; top: 49px; font-family: var(--f-han); font-size: var(--t-xs);
+  letter-spacing: 0.2em; color: var(--ink-faint); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.tl-end-l { left: 0; }
+.tl-end-r { right: 0; letter-spacing: 0.2em; margin-right: -0.2em; }
+.tl-tick {
+  position: absolute; top: 24px; width: 32px; height: 32px; margin-left: -16px;
+}
+.tl-tick::before {
+  content: ""; position: absolute; left: 15.5px; top: 9px; width: var(--hair); height: 7px; background: var(--ink-faint);
+  transition: background-color 0.4s, height 0.4s, top 0.4s;
+}
+.tl-tick:hover::before { background: var(--ink); }
+.tl-tick.cur::before { background: var(--act); top: 4px; height: 12px; }
+.tl-label, .tl-epoch {
+  position: absolute; left: 16px; transform: translateX(-50%); white-space: nowrap;
+  font-size: var(--t-s); letter-spacing: 0.2em; text-indent: 0.2em; color: var(--ink-faint);
+  transition: color 0.4s, opacity 0.3s;
+}
+.tl-label { bottom: 30px; }
+.tl-tick.hi .tl-label { bottom: 46px; }
+.tl-tick.al-l .tl-label, .tl-tick.al-l .tl-epoch { left: 12px; transform: none; text-indent: 0; }
+.tl-tick.al-r .tl-label, .tl-tick.al-r .tl-epoch { left: auto; right: 12px; transform: none; text-indent: 0; }
+.tl-tick:hover .tl-label { color: var(--ink); }
+.tl-tick.cur .tl-label { color: var(--act); }
+.tl-epoch {
+  bottom: 46px; font-size: var(--t-xs); color: var(--ink-dim); opacity: 0;
+  padding: 2px 6px; background: var(--veil);
+}
+.tl-tick.hi .tl-epoch { bottom: 62px; }
+.tl-tick:hover .tl-epoch, .tl-tick:focus-visible .tl-epoch { opacity: 1; }
+.tl-tick:hover .tl-label, .tl-tick:focus-visible .tl-label { opacity: 0; }
+.tl-dot {
+  position: absolute; top: 37.5px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%;
+  background: var(--act); animation: tc-breathe 3.6s ease-in-out infinite;
+}
+.tl-dot[hidden] { display: none; }
+@keyframes tc-breathe { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+
+/* ── 抽屉与对话框 ── */
+.drawer {
+  position: absolute; top: 0; right: 0; bottom: 0; width: min(420px, calc(100% - 32px)); box-sizing: border-box;
+  pointer-events: auto; overflow-y: auto; overscroll-behavior: contain; z-index: 3;
+  padding: calc(var(--edge-t) + 4px) var(--edge-r) calc(var(--edge-b) + var(--s-6)) var(--s-6);
+  background: rgba(0, 0, 0, 0.6); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-left: var(--hair) solid var(--rule);
+  opacity: 0; transform: translateX(24px);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+}
+.drawer.on { opacity: 1; transform: none; }
+.an-head { display: flex; justify-content: space-between; align-items: center; min-height: 40px; }
+.an-close, .ab-close {
+  min-height: 40px; min-width: 44px; font-size: var(--t-m); letter-spacing: 0.24em; text-indent: 0.24em; color: var(--ink-dim);
+}
+.an-close:hover, .ab-close:hover { color: var(--ink); }
+.an-title { font-size: var(--t-xl); font-weight: 400; letter-spacing: 0.24em; margin-top: var(--s-5); }
+.an-latin { font-family: var(--f-latin); font-size: var(--t-xs); letter-spacing: 0.4em; color: var(--act); margin-top: var(--s-2); }
+.an-lead { font-size: var(--t-l); line-height: 1.8; letter-spacing: 0.04em; color: var(--ink); margin-top: var(--s-5); }
+.an-sec { margin-top: var(--s-6); }
+.an-sec[hidden] { display: none; }
+.an-sec > .plaque { padding-bottom: var(--s-2); border-bottom: var(--hair) solid var(--rule); margin-bottom: var(--s-3); }
+.an-eqs dt { font-size: var(--t-s); letter-spacing: 0.16em; color: var(--ink-faint); margin-top: var(--s-4); }
+.an-eqs dt:first-child { margin-top: var(--s-2); }
+.an-eqs dd {
+  font-family: var(--f-math); font-style: italic; font-size: 19px; line-height: 1.5; color: var(--ink);
+  white-space: nowrap; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+}
+.an-notes li {
+  list-style: none; position: relative; padding-left: 1.5em; margin-top: var(--s-2);
+  font-size: var(--t-m); line-height: 1.85; color: var(--ink-dim);
+}
+.an-notes li::before { content: ""; position: absolute; left: 0; top: 0.92em; width: 0.8em; height: var(--hair); background: var(--ink-faint); }
+.an-live > div { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-4); padding: 7px 0 6px; border-bottom: var(--hair) solid var(--rule-faint); }
+.an-live dt, .an-live dd { line-height: 1.5; font-size: var(--t-m); min-width: 0; }
+.an-live dt { color: var(--ink-dim); letter-spacing: 0.1em; }
+.an-live dd { text-align: right; font-family: var(--f-latin); font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.an-test li {
+  list-style: none; display: grid; grid-template-columns: 1.6em 1fr; row-gap: 2px;
+  padding: var(--s-2) 0; border-bottom: var(--hair) solid var(--rule-faint); font-size: var(--t-m);
+}
+.an-test .mk { color: var(--act); font-family: var(--f-math); }
+.an-test .fail .mk, .an-test .fail .nm { color: var(--warn); }
+.an-test .nm { letter-spacing: 0.06em; }
+.an-test .vals { grid-column: 2; font-size: var(--t-s); color: var(--ink-faint); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.an-test .vals b { font-weight: 400; font-family: var(--f-latin); color: var(--ink-dim); }
+.an-test .msg { grid-column: 1 / -1; color: var(--ink-faint); letter-spacing: 0.1em; }
+.an-test .msg.err { color: var(--warn); }
+
+.dialog {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 4;
+  padding: var(--edge-t) var(--edge-r) calc(var(--edge-b) + 16px) var(--edge-l);
+  opacity: 0; transition: opacity 0.4s var(--ease);
+}
+.dialog.on { opacity: 1; }
+.ab-inner {
+  pointer-events: auto; box-sizing: border-box; width: min(440px, 100%); max-height: 100%; overflow-y: auto;
+  padding: var(--s-6) var(--s-6) var(--s-5);
+  background: rgba(0, 0, 0, 0.66); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border-top: var(--hair) solid var(--rule); border-bottom: var(--hair) solid var(--rule);
+  text-align: center;
+}
+.ab-title { font-size: var(--t-xl); font-weight: 400; letter-spacing: 0.3em; text-indent: 0.3em; }
+.ab-sub { font-size: var(--t-s); letter-spacing: 0.36em; text-indent: 0.36em; color: var(--act); margin-top: var(--s-3); }
+.ab-text { font-size: var(--t-m); line-height: 1.95; letter-spacing: 0.06em; color: var(--ink-dim); margin-top: var(--s-5); text-wrap: balance; }
+.ab-build { font-family: var(--f-latin); font-size: var(--t-s); letter-spacing: 0.12em; color: var(--ink-faint); margin-top: var(--s-4); font-variant-numeric: tabular-nums; }
+.ab-build .han { font-family: var(--f-han); }
+.ab-keys {
+  display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--s-4); row-gap: 6px; text-align: left;
+  margin: var(--s-5) auto 0; padding-top: var(--s-4); border-top: var(--hair) solid var(--rule-faint);
+  font-size: var(--t-s); max-width: 280px;
+}
+.ab-keys dt { text-align: right; font-family: var(--f-latin); letter-spacing: 0.12em; color: var(--ink); }
+.ab-keys dd { color: var(--ink-dim); letter-spacing: 0.1em; }
+#t-credit { font-size: var(--t-s); letter-spacing: 0.16em; color: var(--ink-faint); margin-top: var(--s-4); }
+#t-credit:empty { display: none; }
+.ab-close { margin-top: var(--s-4); }
+
+/* ── 致命错误 ── */
+#t-fatal {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--s-4); padding: 0 var(--edge-r) 0 var(--edge-l); text-align: center; pointer-events: auto;
+}
+#t-fatal-msg { font-size: var(--t-l); line-height: 1.8; letter-spacing: 0.08em; color: var(--ink); max-width: 28em; }
+
+/* ── 窄屏 ── */
+@media (max-width: 599px) {
+  #t-start { justify-content: center; align-items: flex-start; padding-top: max(10vh, var(--edge-t)); padding-right: var(--edge-r); }
+  .start-set { gap: var(--s-3); }
+  .start-title { font-size: clamp(76px, 26vw, 120px); }
+  .start-rule { margin: 0 var(--s-1); }
+  .start-lede { font-size: 15px; line-height: 1.95; max-height: 16em; }
+  #t-card { top: max(20vh, 160px); left: var(--edge-l); gap: var(--s-3); }
+  .card-title { font-size: clamp(52px, 9vh, 96px); }
+  #t-controls button { padding: 0 var(--s-2); letter-spacing: 0.12em; text-indent: 0.12em; font-size: 13px; }
+  #t-controls button::after { left: var(--s-2); right: var(--s-2); }
+  #t-mark { flex-direction: column; gap: 4px; padding-top: 6px; }
+  .mark-act { padding-left: 0; border-left: 0; }
+  #t-timeline { padding-left: max(24px, calc(env(safe-area-inset-left, 0px) + 16px)); padding-right: max(24px, calc(env(safe-area-inset-right, 0px) + 16px)); }
+  .tl-label { visibility: hidden; }
+  .tl-tick.cur .tl-label { visibility: visible; bottom: 30px; }
+  .tl-tick.hi .tl-epoch { bottom: 46px; }
+  #t-hint { top: calc(var(--edge-t) + 62px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer { transform: none; }
+  .tl-progress { transition: none; }
+  .tl-dot { animation: none; opacity: 0.8; }
+}

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 与 Artifact 发布骨架等价的重置样式（见 CONTRACT.md §9），保证开发页与发布页行为一致 -->
+<style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>太初</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+</head>
+<body>
+<script>
+/* 开发页加载器：按 /manifest.json 的顺序逐个加载 src 下的脚本，然后调用 TAICHU.boot()。
+   必须经由 tools/devserver.py（或 tools/shot.py 自带的服务器）访问。 */
+(async function () {
+  const m = await (await fetch('manifest.json', { cache: 'no-store' })).json();
+  // 隔离规则（让并行开发互不干扰）：
+  //   ?ch=<id>   只加载 src/chapters/<序号>-<id>.js 这一章（别的章节文件即使写坏了也不影响你）
+  //   ?ui=0      不加载 src/ui/*（界面层）
+  //   ?audio=0   不加载 src/audio/*（配乐）
+  const q = new URLSearchParams(location.search);
+  //   ?only=a,b  （不带 ch 时）整片模式下只加载列出的章节；only=none 表示一章也不加载
+  const only = q.get('ch'), noUI = q.get('ui') === '0', noAudio = q.get('audio') === '0';
+  const list = q.get('only') ? q.get('only').split(',') : null;
+  m.scripts = m.scripts.filter(function (s) {
+    if (s.indexOf('src/chapters/') === 0) {
+      const id = s.slice(s.indexOf('-') + 1).replace(/\.js$/, '');
+      if (only) return id === only;
+      return !list || list.indexOf(id) >= 0;
+    }
+    if (s.indexOf('src/ui/') === 0) return !noUI;
+    if (s.indexOf('src/audio/') === 0) return !noAudio;
+    return true;
+  });
+  if (!noUI) {
+    for (const href of m.css) {
+      const l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = href;
+      document.head.appendChild(l);
+    }
+  }
+  if (m.shell && !noUI) {
+    document.body.insertAdjacentHTML('afterbegin', await (await fetch(m.shell, { cache: 'no-store' })).text());
+  } else {
+    // 没有界面层时的兜底：只有一块全屏画布
+    document.documentElement.style.height = '100%';
+    document.body.style.cssText = 'margin:0;height:100%;background:#000;overflow:hidden';
+    document.body.insertAdjacentHTML('afterbegin',
+      '<canvas id="taichu-canvas" style="position:fixed;inset:0;width:100%;height:100%;display:block"></canvas>');
+  }
+  for (const src of m.scripts) {
+    await new Promise(function (res, rej) {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = res;
+      s.onerror = function () { rej(new Error('脚本加载失败: ' + src)); };
+      document.body.appendChild(s);
+    });
+  }
+  if (!window.TAICHU || !TAICHU.boot) throw new Error('TAICHU.boot 未定义（src/main.js 缺失？）');
+  TAICHU.boot();
+})().catch(function (e) {
+  console.error(e);
+  const s = (window.__taichu = window.__taichu || { errors: [] });
+  (s.errors = s.errors || []).push(String(e));
+});
+</script>
+</body>
+</html>

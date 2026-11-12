@@ -1,0 +1,110 @@
+<canvas id="taichu-canvas"></canvas>
+<div id="taichu-ui" class="is-intro">
+
+  <header id="t-mark" class="chrome">
+    <span class="mark-name">太初</span>
+    <span class="mark-act" id="t-mark-act"></span>
+    <span class="mark-paused" id="t-paused" hidden>暂停</span>
+  </header>
+
+  <nav id="t-controls" class="chrome" aria-label="控制">
+    <button type="button" data-act="anatomy" aria-pressed="false">解剖</button>
+    <button type="button" data-act="mute" aria-pressed="false">静音</button>
+    <button type="button" data-act="hold" aria-pressed="false">驻留</button>
+    <button type="button" data-act="full" aria-pressed="false">全屏</button>
+    <button type="button" data-act="about" aria-pressed="false">关于</button>
+  </nav>
+
+  <section id="t-start" class="fade on" aria-label="片头">
+    <div class="start-set">
+      <h1 class="start-title">太初</h1>
+      <p class="start-latin">TAICHU · A UNIVERSE IN ONE FILE</p>
+      <div class="start-rule" aria-hidden="true"></div>
+      <div class="start-lede">
+        <p>一百三十八亿年，六幕。</p>
+        <p>你将看到的每一帧、听到的每一个音，都由这一个文件在你的设备上当场算出。</p>
+        <p>没有素材，没有依赖。</p>
+      </div>
+      <div class="start-go">
+        <button type="button" id="t-begin" disabled>正在点亮</button>
+        <p class="start-tip">建议全屏，戴上耳机</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="t-card" class="fade" aria-hidden="true">
+    <div class="card-rule"></div>
+    <p class="card-num" id="t-card-num"></p>
+    <h2 class="card-title" id="t-card-title"></h2>
+    <p class="card-latin" id="t-card-latin"></p>
+    <p class="card-epoch" id="t-card-epoch"></p>
+  </div>
+
+  <div id="t-input-wrap" class="fade">
+    <input id="t-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" aria-label="输入">
+  </div>
+
+  <p id="t-caption" class="fade" aria-live="polite"></p>
+
+  <p id="t-hint" class="fade chrome"></p>
+
+  <nav id="t-timeline" class="chrome" aria-label="时间轴">
+    <div class="tl-track" id="t-track">
+      <div class="tl-rail" aria-hidden="true"></div>
+      <div class="tl-progress" id="t-progress" aria-hidden="true"></div>
+      <span class="tl-end tl-end-l" aria-hidden="true">138 亿年前</span>
+      <span class="tl-end tl-end-r" aria-hidden="true">现在</span>
+    </div>
+  </nav>
+
+  <aside id="t-anatomy" class="drawer" role="dialog" aria-modal="false" aria-labelledby="t-an-title" hidden>
+    <div class="an-head">
+      <span class="plaque">ANATOMY</span>
+      <button type="button" class="an-close" data-close="anatomy">合上</button>
+    </div>
+    <h2 class="an-title" id="t-an-title" tabindex="-1"></h2>
+    <p class="an-latin" id="t-an-latin"></p>
+    <p class="an-lead" id="t-an-lead"></p>
+    <section class="an-sec" id="t-an-eqs-sec">
+      <h3 class="plaque">方程 · EQUATIONS</h3>
+      <dl class="an-eqs" id="t-an-eqs"></dl>
+    </section>
+    <section class="an-sec" id="t-an-notes-sec">
+      <h3 class="plaque">注 · NOTES</h3>
+      <ul class="an-notes" id="t-an-notes"></ul>
+    </section>
+    <section class="an-sec" id="t-an-live-sec">
+      <h3 class="plaque">实时 · LIVE</h3>
+      <dl class="an-live" id="t-an-live"></dl>
+    </section>
+    <section class="an-sec">
+      <h3 class="plaque">物理自检 · SELF-TEST</h3>
+      <ul class="an-test" id="t-an-test"></ul>
+    </section>
+  </aside>
+
+  <div id="t-about" class="dialog" role="dialog" aria-modal="false" aria-labelledby="t-about-title" hidden>
+    <div class="ab-inner">
+      <h2 class="ab-title" id="t-about-title" tabindex="-1">《太初》</h2>
+      <p class="ab-sub">一个文件 · 零素材 · 零依赖</p>
+      <p class="ab-text">你看到的每一帧、听到的每一个音，都由这个文件里的代码在你的设备上当场算出。</p>
+      <p class="ab-build" id="t-build" hidden></p>
+      <dl class="ab-keys">
+        <dt>空格</dt><dd>暂停 / 继续</dd>
+        <dt>← →</dt><dd>上一幕 / 下一幕</dd>
+        <dt>F</dt><dd>全屏</dd>
+        <dt>M</dt><dd>静音</dd>
+        <dt>I</dt><dd>解剖</dd>
+        <dt>A</dt><dd>驻留</dd>
+        <dt>Esc</dt><dd>关闭面板</dd>
+      </dl>
+      <p id="t-credit">Fable 5.2 与 Opus 5.5 作</p>
+      <button type="button" class="ab-close" data-close="about">合上</button>
+    </div>
+  </div>
+
+  <div id="t-fatal" role="alert" hidden>
+    <p class="plaque">TAICHU · HALTED</p>
+    <p id="t-fatal-msg"></p>
+  </div>
+</div>

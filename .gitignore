@@ -1,0 +1,4 @@
+shots/
+manifest.json
+__pycache__/
+.DS_Store

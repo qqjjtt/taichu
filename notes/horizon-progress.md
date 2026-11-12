@@ -1,0 +1,5 @@
+- 21:47 读完任务书/指南/契约，开始写 src/chapters/3-horizon.js 骨架
+- 骨架写完，selftest 四项通过（bc 2.6034, 偏折 0.24%, 辛格 0.065%, g 0.70711）
+- 时间线走通；调色/不透明度中（Tpeak 9000, 系数1.3, sat 1.45）
+- 全时间线联系表 OK；进入验收（check/mobile/drag/perf）
+- 验收完成：check 通过、selftest 5/5、720p gpuAvgMs 5.7；高DPR瓶颈在后期，已写 notes/horizon.md

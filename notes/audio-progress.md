@@ -1,0 +1,4 @@
+- audio: src/audio/audio.js 已整体写完（总线/混响/乐器/调度/六幕时间线/renderOffline，含 'a>b' 换幕测试）；下一步逐幕 audio_check 校准
+- audio: 六幕 audio_check 全绿（RMS −27..−21，0 爆音），换幕 a>b 测试无爆音；下一步实时路径与节点计数
+- audio: 实时路径通过（levels 非零、静音、换幕回收、0 错误），build 通过；进入听感复查
+- audio: 收尾完成——六幕+换幕全绿，build 通过，notes/audio.md 已写

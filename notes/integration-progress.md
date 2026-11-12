@@ -1,0 +1,6 @@
+- integration: 开工，读完契约与 notes，跑全片 check
+- integration: check 全过，§7 元数据/字幕脚本比对 0 差异；shot.py 加 run:秒（engine.setFrozen）
+- integration: 整片流程 dev 桌面走通（片头/幕名卡/五次 goto/解剖/输入写字/时间轴/暂停驻留静音），0 错误；脚本 shots/integration/filmflow.py
+- integration: build 通过；dist 桌面/手机/retina 流程 0 错误
+- integration: 修 horizon diskNoise 0/0=NaN（低分辨率下透镜像黑月牙）；性能逐幕已测
+- integration: 重建 dist、全片 check 全过、dist 流程 0 错误；notes/integration.md 已写，完成
